@@ -1,6 +1,15 @@
 # Create a class to hold a city location. Call the class "City". It should have
 # fields for name, lat and lon (representing latitude and longitude).
+import csv
 
+class City:
+  def __init__(self, name, lat, lon):
+    self.name = name
+    self.lat = lat
+    self.lon = lon
+  
+  def __str__(self):
+    return f'Name: {self.name}, Lat: {self.lat}, Lon: {self.lon}'
 
 # We have a collection of US cities with population over 750,000 stored in the
 # file "cities.csv". (CSV stands for "comma-separated values".)
@@ -21,8 +30,17 @@ def cityreader(cities=[]):
   # Ensure that the lat and lon valuse are all floats
   # For each city record, create a new City instance and add it to the 
   # `cities` list
+
+  with open('cities.csv', newline='') as city_file:
+    reader = csv.DictReader(city_file)
+    for row in reader:
+      city_name = row['city']
+      city_lat = float(row['lat'])
+      city_lon = float(row['lng'])
+      new_city = City(city_name, city_lat, city_lon)
+      cities.append(new_city)
     
-    return cities
+  return cities
 
 cityreader(cities)
 
@@ -59,13 +77,35 @@ for c in cities:
 # Tucson: (32.1558,-110.8777)
 # Salt Lake City: (40.7774,-111.9301)
 
-# TODO Get latitude and longitude values from the user
 
 def cityreader_stretch(lat1, lon1, lat2, lon2, cities=[]):
   # within will hold the cities that fall within the specified region
   within = []
-  
+
+  # make rectangle standardized with lower right and upper left coordinates.
+  lower_right_lat = min(lat1, lat2)
+  upper_left_lat = max(lat1, lat2)
+  lower_right_lon = max(lon1, lon2)
+  upper_left_lon = min(lon1, lon2)
+
   # Go through each city and check to see if it falls within 
   # the specified coordinates.
+  for city in cities:
+    if city.lat >= lower_right_lat and city.lat <= upper_left_lat and city.lon >= upper_left_lon and city.lon <= lower_right_lon:
+      within.append(city)
 
   return within
+
+
+# In order to make the stretch test work, I had to comment out all of the following lines related to user input.
+first_point_str = input("Enter lat1,lon1: ").split(",")
+second_point_str = input("Enter lat2,lon2: ").split(",")
+
+first_point_lat = float(first_point_str[0])
+first_point_lon = float(first_point_str[1])
+second_point_lat = float(second_point_str[0])
+second_point_lon = float(second_point_str[1])
+
+results = cityreader_stretch(first_point_lat, first_point_lon, second_point_lat, second_point_lon, cities)
+for result in results:
+  print(result)
